@@ -13,7 +13,6 @@ function transfer_issues(github_username, github_password, github_repo, gforge_u
 // , github_password, github_repo, gforge_username, gforge_password, gforge_repo
 function get_github_issues(github_username, github_repo){
 
-
     var url = {
         host: 'api.github.com',
         path: '/repos/'+github_username+'/'+ github_repo +'/issues',
@@ -23,7 +22,6 @@ function get_github_issues(github_username, github_repo){
 
     https.get(url, function(res) {
 
-        console.log("Got response: " + res.statusCode);
         var body = "";
         res.on("data", function(chunk) {
             body += chunk;
