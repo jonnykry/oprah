@@ -144,7 +144,6 @@ function transferIssues(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
     });
 }
 
-// TODO: Do we need the GH or GF user/pass hash?
 function getGithubIssues(ghUsername, ghRepo) {
     var url = {
         host: 'api.github.com',
@@ -169,16 +168,15 @@ function getGithubIssues(ghUsername, ghRepo) {
     });
 }
 
-// TODO: Figure out why user auth is not working
-function postGforgeTrackers(object, gfHash, id) {
-  console.log(gfHash);
-
+function postGforgeTrackers(data, gfHash, id) {
   var options = {
     host: 'next.gforge.com',
     path: '/api/trackeritem',
     method: 'POST',
     auth: gfHash
   };
+
+  console.log(options);
 
   var req = https.request(options, function(res) {
     res.setEncoding('utf8');

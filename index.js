@@ -1,4 +1,4 @@
-#!/usr/bin/env node --harmony
+#!/usr/bin/env node
 
 var co = require('co');
 var prompt = require('co-prompt');
@@ -26,7 +26,7 @@ co(function *() {
   var gfUsername = yield prompt('GForge Username: \n');
   var gfPassword = yield prompt.password('GForge Password: \n');
   result.gfUsername = gfUsername;
-  result.gfHash = 'Basic ' + new Buffer(gfUsername + ':' + gfPassword).toString('base64');
+  result.gfHash = gfUsername + ':' + gfPassword;
 
   return result;
 }).then(function(result) {
