@@ -47,7 +47,8 @@ co(function *() {
   return result;
 }).then(function(result) {
   if (result.transferIssues) {
-      it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
+      it.transferIssues('atom', 'language-javascript', 'csteamengine', 'csteamengine:########', 'testing-oprah');
+      // it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {
       ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
