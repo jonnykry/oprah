@@ -3,15 +3,14 @@ var shell = require("shelljs");
 var urlPrefix = "https://gforge.com/git/";
 
 
-function transferCode(ghRepo, ghUsername, gfRepo, gfUsername, verbose) {
+function transferCode(gfRepo, verbose) {
     // Check if user has git installed
     checkGitInstalled();
     
     // Begin script
     console.log("Transferring Code from GitHub to GForge...");
     shell.config.silent = !verbose;
-    // TODO: Uncomment below after complete
-    // attemptToCheckoutMaster();
+    attemptToCheckoutMaster();
 
     // Tracks all remote branches
     shell.exec("git branch -r | grep -v '\->' | while read remote; do git branch --track \"${remote#origin/}\" \"$remote\"; done");
@@ -21,32 +20,37 @@ function transferCode(ghRepo, ghUsername, gfRepo, gfUsername, verbose) {
     shell.exec("git pull --all");
 
     // Setup gforge remote
-    setupGforgeRemote(ghRepo);
+    setupGforgeRemote(gfRepo);
 
     // Push to new remote
-    shell.exec("git push " + ghRepo + " --all");
-    shell.exec("git push " + ghRepo + " --tags");
+    shell.exec("git push " + gfRepo + " --all");
+    shell.exec("git push " + gfRepo + " --tags");
 }
 
 
-function checkGitInstalled() {
-    if (!shell.which("git")) {
+function checkGitInstalled(testing=false) {
+    if (!testing && !shell.which("git")) {
         shell.echo("Sorry, this script requires git.");
         shell.exit(1);
+    } else if (testing && !shell.which("gitnotinstalled")) {
+        throwError();
     }
 }
 
-function attemptToCheckoutMaster() {
-    var commandStdOut;
-    var commandStdErr;
-    shell.exec("git checkout master", function(_, stdout, stderr) {
-        commandStdOut = stdout;
-        commandStdErr = stderr;
-    });
-    if (commandStdErr) {
-        console.log(commandStdErr);
-        shell.exit(1);
+function attemptToCheckoutMaster(testing=false) {
+    var stderr;
+    if (!testing) {
+        stderr = shell.exec("git checkout master").stderr;
+        if (stderr) {
+            shell.exit(1);
+        }
+    } else {
+        stderr = shell.exec("git checkout master").stderr;
+        if (stderr) {
+            throwError();
+        }
     }
+
 }
 
 function setupGforgeRemote(ghRepo) {
