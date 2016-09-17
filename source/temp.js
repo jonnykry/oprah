@@ -1,6 +1,8 @@
 //TODO will create a new tracker, get it and create a json and return it
+var https = require('https');
 var tracker = get_whole_tracker();
-
+var EventEmitter = require("events").EventEmitter;
+var body = new EventEmitter();
 
 function get_json(username, issue){
   var json = {
@@ -53,10 +55,9 @@ function get_json(username, issue){
   return json;
 }
 
-function get_user(username){
 
-}
 
 function get_whole_tracker(){
 
 }
+get_user('csteamengine');

@@ -39,6 +39,7 @@ co(function *() {
 
   return result;
 }).then(function(result) {
+
   if (result.transferIssues) {
     it.transferIssues(result.ghUsername, result.ghRepo, result.gfHash, result.gfRepo);
   }

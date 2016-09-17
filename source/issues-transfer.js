@@ -194,6 +194,52 @@ function postGforgeTrackers(data, gfHash, id) {
   req.end();
 }
 
+function get_user(username, gfHash){
+  var options = {
+    host: 'api.mygforge.tld',
+    path: '/user?unixName='+ username +'/',
+    method: 'GET',
+    auth: gfHash
+  };
+
+
+  https.get(url, function(res) {
+    body.data = "";
+
+    res.on("data", function(chunk) {
+      body.data += chunk;
+    });
+
+    res.on('end', function(){
+      body.data = JSON.parse(body.data);
+      body.emit('update');
+    });
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+  });
+
+  var json = {
+    "id": 34746,
+    "unixName": "nkarasch",
+    "password": null,
+    "firstname": "Nathan",
+    "lastname": "Karasch",
+    "email": "nkarasch@iastate.edu",
+    "timezone": "America/Chicago",
+    "status": 1,
+    "externalId": null,
+    "isGroup": "N",
+    "ccode": "US",
+    "language": "en",
+    "theme": 1,
+    "img_url": "/api/user/nkarasch/avatar",
+    "html_url": "/#/user/nkarasch",
+    "details_url": "/api/user/nkarasch/details",
+    "isSiteAdmin": false,
+    "api_url": "/api/user/nkarasch"
+  };
+}
+
 module.exports = {
   transferIssues
 };
