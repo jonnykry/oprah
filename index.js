@@ -43,7 +43,7 @@ co(function *() {
   return result;
 }).then(function(result) {
   if (result.transferIssues) {
-      it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
+      it.transferIssues('jonnykry', 'bookmark-spotlight', 'jonnykry', 'jonnykry:rails01', 'oprah');
   }
   if (result.transferCode) {
     ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
