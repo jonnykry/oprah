@@ -4,7 +4,7 @@ var tracker = get_whole_tracker();
 var EventEmitter = require("events").EventEmitter;
 var body = new EventEmitter();
 
-function get_json(username, issue){
+function get_json(userobj, issue){
   var json = {
       "statusId": 1,
       "priority": 1,
@@ -24,15 +24,15 @@ function get_json(username, issue){
         "fieldElements": null,
         "fieldOrder": null
       },
-      "submittedBy": get_user(username),
+      "submittedBy": userobj,
       "lastModifiedDate": issue['updated_at'], //(with some parsing done)
-      "lastModifiedBy": get_user(username),
+      "lastModifiedBy": userobj,
       "sortOrder": null,
       "parent": 0,
       "hasSubitems": false,
       "subitemsCount": 0,
       "rel": {
-        "assignees": get_user(username)
+        "assignees": userobj
       },
       "extraFields": {
         "status": {
@@ -60,4 +60,3 @@ function get_json(username, issue){
 function get_whole_tracker(){
 
 }
-get_user('csteamengine');

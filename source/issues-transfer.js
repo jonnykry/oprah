@@ -1,147 +1,30 @@
 var https = require('https');
+var http = require('http');
 var EventEmitter = require("events").EventEmitter;
 var body = new EventEmitter();
 var querystring = require('querystring');
 
-var tempJSON = {
-  "statusId": 1,
-  "priority": 3,
-  "openDate": "2016-09-17 06:11:45 +0000",
-  "closeDate": "2016-09-17 06:11:45 +0000",
-  "summary": "LET'S GOOOOOOooooooooooo",
-  "details": null,
-  "tracker": {
-    "id": 11546,
-    "project": {
-      "id": 2267,
-      "name": "oprah",
-      "unixName": "oprah",
-      "description": "Look under your chairs...",
-      "homepageUrl": "/gf/project/oprah/",
-      "createDate": "2016-09-17 02:48:01 +0000",
-      "isPublic": "Y",
-      "status": 1,
-      "isTemplate": "N",
-      "templateProjectId": 2264
-    },
-    "trackerName": "Tasks",
-    "description": "Project Task Tracking",
-    "submitInstructions": "",
-    "browseInstructions": "",
-    "numItems": 6,
-    "numItemsOpen": 3,
-    "trackerType": 2,
-    "details_url": "/api/tracker/11546/detail",
-    "api_url": "/api/tracker/11546",
-    "fields": [],
-    "access_level": null
-  },
-  "waitingFor": 100,
-  "sprint": {
-    "id": null,
-    "alias": "sprint",
-    "fieldId": null,
-    "fieldName": "sprint",
-    "fieldType": null,
-    "fieldData": null,
-    "fieldElements": null,
-    "fieldOrder": null
-  },
-  "submittedBy": {
-    "id": 34746,
-    "unixName": "nkarasch",
-    "password": null,
-    "firstname": "Nathan",
-    "lastname": "Karasch",
-    "email": "nkarasch@iastate.edu",
-    "timezone": "America/Chicago",
-    "status": 1,
-    "externalId": null,
-    "isGroup": "N",
-    "ccode": "US",
-    "language": "en",
-    "theme": 1,
-    "img_url": "/api/user/nkarasch/avatar",
-    "html_url": "/#/user/nkarasch",
-    "details_url": "/api/user/nkarasch/details",
-    "isSiteAdmin": false,
-    "api_url": "/api/user/nkarasch"
-  },
-  "lastModifiedDate": "2016-09-17 06:11:45 +0000",
-  "lastModifiedBy": {
-    "id": 34746,
-    "unixName": "nkarasch",
-    "password": null,
-    "firstname": "Nathan",
-    "lastname": "Karasch",
-    "email": "nkarasch@iastate.edu",
-    "timezone": "America/Chicago",
-    "status": 1,
-    "externalId": null,
-    "isGroup": "N",
-    "ccode": "US",
-    "language": "en",
-    "theme": 1,
-    "img_url": "/api/user/nkarasch/avatar",
-    "html_url": "/#/user/nkarasch",
-    "details_url": "/api/user/nkarasch/details",
-    "isSiteAdmin": false,
-    "api_url": "/api/user/nkarasch"
-  },
-  "sortOrder": null,
-  "parent": 0,
-  "hasSubitems": false,
-  "subitemsCount": 0,
-  "rel": {
-    "assignees": [
-      {
-        "id": 100,
-        "unixName": "None",
-        "password": null,
-        "firstname": "Nobody",
-        "lastname": " ",
-        "email": "noreply@gforge.org",
-        "timezone": "GMT",
-        "status": 1,
-        "externalId": null,
-        "isGroup": "N",
-        "ccode": "US",
-        "language": "en",
-        "theme": 1,
-        "img_url": "/api/user/None/avatar",
-        "html_url": "/#/user/None",
-        "details_url": "/api/user/None/details",
-        "isSiteAdmin": false,
-        "api_url": "/api/user/None"
-      }
-    ]
-  },
-  "extraFields": {
-    "status": {
-      "id": 67773,
-      "alias": "status",
-      "fieldId": 67773,
-      "fieldName": "Status",
-      "fieldType": 7,
-      "fieldData": {
-        "id": 280792,
-        "alias": "todo",
-        "elementName": "To Do",
-        "statusId": 1
-      },
-      "fieldElements": null,
-      "fieldOrder": 0
-    }
-  }
-};
 
 
 function transferIssues(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
-    getGithubIssues(ghUsername, ghRepo, body);
+    getGithubIssues(ghUsername, ghRepo);
 
     body.on('update', function() {
-      postGforgeTrackers(body.data, gfUsername, gfHash, gfRepo);
+      console.log("update");
+      get_user(gfUsername, gfHash);
     });
+    body.on('user_get', function(){
+      console.log("user_get");
+      get_tracker(gfRepo, gfHash);
+    });
+
+    body.on('tracker_get',function(){
+      var out = get_json(body.userdata, body.data, body.trackerdata);
+      console.log(out);
+      postGforgeTrackers(out, gfHash);
+    });
+
+
 }
 
 function getGithubIssues(ghUsername, ghRepo) {
@@ -168,7 +51,7 @@ function getGithubIssues(ghUsername, ghRepo) {
     });
 }
 
-function postGforgeTrackers(data, gfHash, id) {
+function postGforgeTrackers(data, gfHash) {
   var options = {
     host: 'next.gforge.com',
     path: '/api/trackeritem',
@@ -176,7 +59,6 @@ function postGforgeTrackers(data, gfHash, id) {
     auth: gfHash
   };
 
-  console.log(options);
 
   var req = https.request(options, function(res) {
     res.setEncoding('utf8');
@@ -190,56 +72,117 @@ function postGforgeTrackers(data, gfHash, id) {
   });
 
   // write data to request body
-  req.write(querystring.stringify(tempJSON));
+  req.write(querystring.stringify(data));
   req.end();
 }
 
 function get_user(username, gfHash){
   var options = {
-    host: 'api.mygforge.tld',
-    path: '/user?unixName='+ username +'/',
+    host: 'next.gforge.com',
+    path: '/api/user?unixName='+username+'&page_num=1&page_size=20',
     method: 'GET',
     auth: gfHash
   };
-
-
-  https.get(url, function(res) {
-    body.data = "";
+  console.log(options);
+  http.get(options, function(res) {
+    body.userdata = "";
 
     res.on("data", function(chunk) {
-      body.data += chunk;
+      body.userdata += chunk;
     });
 
     res.on('end', function(){
-      body.data = JSON.parse(body.data);
-      body.emit('update');
+      body.userdata = JSON.parse(body.userdata);
+      // console.log(body.userdata);
+      body.emit('user_get');
     });
   }).on('error', function(e) {
     console.log("Got error: " + e.message);
   });
 
-  var json = {
-    "id": 34746,
-    "unixName": "nkarasch",
-    "password": null,
-    "firstname": "Nathan",
-    "lastname": "Karasch",
-    "email": "nkarasch@iastate.edu",
-    "timezone": "America/Chicago",
-    "status": 1,
-    "externalId": null,
-    "isGroup": "N",
-    "ccode": "US",
-    "language": "en",
-    "theme": 1,
-    "img_url": "/api/user/nkarasch/avatar",
-    "html_url": "/#/user/nkarasch",
-    "details_url": "/api/user/nkarasch/details",
-    "isSiteAdmin": false,
-    "api_url": "/api/user/nkarasch"
-  };
 }
 
+function get_json(userobj, issue, tracker){
+  var json = {
+    "statusId": 1,
+    "priority": 1,
+    "openDate": issue['created_at'], //(with some parsing done)
+    "closeDate": issue['closed_at'], // (with some parsing done, see if null is allowed)
+    "summary": issue['title'],
+    "details": issue['body'],
+    "tracker": tracker,
+    "waitingFor": 100,
+    "sprint": {
+      "id": null,
+      "alias": "sprint",
+      "fieldId": null,
+      "fieldName": "sprint",
+      "fieldType": null,
+      "fieldData": null,
+      "fieldElements": null,
+      "fieldOrder": null
+    },
+    "submittedBy": userobj,
+    "lastModifiedDate": issue['updated_at'], //(with some parsing done)
+    "lastModifiedBy": userobj,
+    "sortOrder": null,
+    "parent": 0,
+    "hasSubitems": false,
+    "subitemsCount": 0,
+    "rel": {
+      "assignees": userobj
+    },
+    "extraFields": {
+      "status": {
+        "id": 67773,
+        "alias": "status",
+        "fieldId": 67773,
+        "fieldName": "Status",
+        "fieldType": 7,
+        "fieldData": {
+          "id": 280792,
+          "alias": "todo",
+          "elementName": "To Do",
+          "statusId": 1
+        },
+        "fieldElements": null,
+        "fieldOrder": 0
+      }
+    }
+  };
+  return json;
+}
+
+
+
+function get_tracker(gfRepo, gfHash){
+  //TODO get whole tracker();
+  var options = {
+    host: 'next.gforge.com',
+    path: '/api/tracker/?trackerName='+gfRepo+'&page_num=1&page_size=20',
+    method: 'GET',
+    auth: gfHash
+  };
+  console.log(options);
+  http.get(options, function(res) {
+    body.trackerdata = "";
+
+    res.on("data", function(chunk) {
+      body.trackerdata += chunk;
+    });
+
+    res.on('end', function(){
+      body.trackerdata = JSON.parse(body.trackerdata);
+      // console.log(body.userdata);
+      body.emit('tracker_get');
+    });
+  }).on('error', function(e) {
+    console.log("Got error: " + e.message);
+  });
+}
+
+
 module.exports = {
-  transferIssues
+  transferIssues,
+  get_user
 };
