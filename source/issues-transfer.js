@@ -24,8 +24,10 @@ exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo
     });
 
     body.on('trackerGet',function () {
-      var out = getJson(body.userdata.items[0], body.data[0], body.trackerdata.items[0]);
-      postGforgeTrackers(out, gfHash);
+      for(i = 0;i< body.data.length;i++){
+        var out = getJson(body.userdata.items[0], body.data[i], body.trackerdata.items[0]);
+        postGforgeTrackers(out, gfHash);
+      }
     });
 }
 
@@ -34,7 +36,7 @@ exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo
 function getGithubIssues(ghUsername, ghRepo) {
     var url = {
         host: 'api.github.com',
-        path: '/repos/' + ghUsername + '/' + ghRepo + '/issues',
+        path: '/repos/' + ghUsername + '/' + ghRepo + '/issues?state=all',
         method: 'GET',
         headers: {'user-agent': ghUsername}
     };
