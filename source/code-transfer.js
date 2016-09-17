@@ -10,7 +10,7 @@ function transferCode(gfRepo, verbose) {
     // Begin script
     console.log("Transferring Code from GitHub to GForge...");
     shell.config.silent = !verbose;
-    attemptToCheckoutMaster();
+    // attemptToCheckoutMaster();
 
     // Tracks all remote branches
     shell.exec("git branch -r | grep -v '\->' | while read remote; do git branch --track \"${remote#origin/}\" \"$remote\"; done");
@@ -53,8 +53,9 @@ function attemptToCheckoutMaster(testing=false) {
 
 }
 
-function setupGforgeRemote(ghRepo) {
-    var url = urlPrefix + ghRepo;
+function setupGforgeRemote(gfRepo) {
+    var url = urlPrefix + gfRepo;
+
     var remotes = shell.exec("git remote -v").stdout;
     if (remotes.includes("gforge)")) {
         shell.exec("git remote remove gforge");
