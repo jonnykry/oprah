@@ -28,6 +28,7 @@
     "co": "^4.6.0",
     "co-prompt": "^1.0.0",
     "commander": "^2.9.0",
+    "querystring": "^0.2.0",
     "shelljs": "^0.7.4"
   }
 }

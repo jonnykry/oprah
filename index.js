@@ -7,8 +7,8 @@ var it = require('./source/issues-transfer');
 
 program.version('0.0.1')
   .option('-u, --username [username]', 'Your GitHub username')
-  .option('-v, --verbose [value]', 'Display program output, warnings, and error details')
-  .option('-t, --timeout [value]', 'GitHub authentication timeout time (default 600ms)')
+  .option('-v, --verbose [verbose]', 'Display program output, warnings, and error details')
+  .option('-t, --timeout [timeout]', 'GitHub authentication timeout time (default 600ms)')
   .parse(process.argv);
 
 co(function *() {
@@ -30,7 +30,7 @@ co(function *() {
 
   return result;
 }).then(function(result) {
-  it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfRepo);
+  it.transferIssues(result.ghUsername, result.ghRepo, result.gfHash, result.gfRepo);
 }, function (err) {
   console.log('Error processing user input to oprah.');
 });
