@@ -48,13 +48,25 @@ describe('code-transfer', function() {
         });
     });
 
-    describe.skip('attemptToCheckoutMaster()', function() {
+    describe('attemptToCheckoutMaster()', function() {
         // TODO
         it('should checkout master if no changes are staged for commit', function() {
-            // ...
+            shell.exec("git stash -q");
+            shell.exec("git checkout -b generated-test-temp-branch -q");
+            ct.attemptToCheckoutMaster();
+            assert.equal(hook.captured().length, 0);
+            shell.exec("git checkout ${-2}");
+            shell.exec("git stash pop");
         });
         it('should return exit code 1 and display error if unable to checkout master', function() {
-            // ...
+            shell.exec("git stash -q");
+            shell.exec("git checkout -b generated-test-temp-branch -q");
+            shell.touch("generated-test-temp-file.js");
+            ct.attemptToCheckoutMaster();
+            assert.equal(hook.captured().length, 0);
+            shell.rm("generated-test-temp-file.js");
+            shell.exec("git checkout ${-1} -q");
+            shell.exec("git stash pop");
         });
     });
 
