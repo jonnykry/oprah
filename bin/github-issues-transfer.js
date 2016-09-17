@@ -24,8 +24,8 @@ function get_github_issues(github_username, github_repo){
         });
         res.on('end', function(){
             var json = JSON.parse(body);
-            //console.log(json[0]);
-            return json;
+            console.log(json[0]);
+            // return json;
         });
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
@@ -60,3 +60,4 @@ function post_gforge_trackers(object, username, password, id){
   req.end();
 }
 
+get_github_issues('csteamengine','MySnippets');
