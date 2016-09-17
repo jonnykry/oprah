@@ -3,7 +3,6 @@
 var co = require('co');
 var prompt = require('co-prompt');
 var program = require('commander');
-var https = require('https');
 
 program.version('0.0.1')
   .option('-u, --username [username]', 'Your GitHub username')
@@ -15,17 +14,17 @@ co(function *() {
   var result = {};
 
   result.ghRepo = yield prompt('GitHub repository name: ');
-  result.ghUsername = yield prompt('GitHub Username: ');
-  result.ghPassword = yield prompt.password('GitHub Password: ');
+  var ghUsername = yield prompt('GitHub Username: ');
+  var ghPassword = yield prompt.password('GitHub Password: ');
+  result.ghHash = 'Basic ' + new Buffer(ghUsername + ':' + ghPassword).toString('base64');
   result.gfRepo = yield prompt('GForge repository name: ');
-  result.gfUsername = yield prompt('GForge Username:');
-  result.gfPassword = yield prompt.password('GForge Password:');
+  var gfUsername = yield prompt('GForge Username:');
+  var gfPassword = yield prompt.password('GForge Password:');
+  result.gfHash = 'Basic ' + new Buffer(ghUsername + ':' + ghPassword).toString('base64');
 
   return result;
 }).then(function(result) {
-  var ghAuthCode = 'Basic ' + new Buffer(result.ghUsername + ':' + result.ghPassword).toString('base64');
-  var gfAuthCode = 'Basic ' + new Buffer(result.gfUsername + ':' + result.gfPassword).toString('base64');
-
+  console.log(result.ghHash, result.gfHash);
 }, function (err) {
   console.log('Error processing user input to oprah.');
 });
