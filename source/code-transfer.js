@@ -1,11 +1,7 @@
 #! /usr/bin/env node
 var shell = require("shelljs");
 
-// Testing purposes only
-githubCodeTransfer("https://someurl", false);
-
-
-function githubCodeTransfer(gforgeRepoURL, verbose) {
+function transferCode(gforgeRepoURL, verbose) {
     // Check if user has git installed
     checkGitInstalled();
     
@@ -57,3 +53,7 @@ function setupGforgeRemote(gforgeRepoURL) {
     }
     shell.exec("git remote add gforge " + gforgeRepoURL);
 }
+
+module.exports = {
+    transferCode
+};

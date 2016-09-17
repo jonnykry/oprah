@@ -196,4 +196,4 @@ function postGforgeTrackers(data, gfHash, id) {
 
 module.exports = {
   transferIssues
-}
+};
