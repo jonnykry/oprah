@@ -28,7 +28,6 @@
     "github-wiki-transfer": "bin/github-wiki-transfer.js"
   },
   "dependencies": {
-    "octonode": "^0.7.6",
     "shelljs": "^0.7.4"
   }
 }
