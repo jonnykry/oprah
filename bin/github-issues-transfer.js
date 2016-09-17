@@ -28,7 +28,7 @@ function get_github_issues(github_username, github_repo){
         });
         res.on('end', function(){
             var json = JSON.parse(body);
-            console.log(json[0]);
+            console.log(json);
         });
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
