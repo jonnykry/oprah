@@ -3,7 +3,7 @@ const https = require('https');
 
 function transfer_issues(github_username, github_password, github_repo, gforge_username, gforge_password, gforge_repo){
     var github_issues_json = get_github_issues(github_username, github_repo);
-    post_gforge_tracker(json, gforge_username, gforge_password, gforge_repo);
+    post_gforge_trackers(github_issues_json, gforge_username, gforge_password, gforge_repo);
 }
 
 // , github_password, github_repo, gforge_username, gforge_password, gforge_repo
@@ -24,9 +24,8 @@ function get_github_issues(github_username, github_repo){
         });
         res.on('end', function(){
             var json = JSON.parse(body);
-            // TODO - Call post_gforge_trackers
-            post_gforge_trackers(json, "test", 12, json["id"])
             //console.log(json[0]);
+            return json;
         });
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
@@ -40,7 +39,7 @@ function post_gforge_trackers(object, username, password, id){
     method: 'POST',
     headers: {'user-agent': 'node.js'},
     auth: 'Basic ' + new Buffer("justintw" + ':' + "123qwe").toString('base64')
-  }
+  };
 
   var req = https.request(gForce, function(res) {
     console.log('STATUS: ' + res.statusCode);
@@ -61,4 +60,3 @@ function post_gforge_trackers(object, username, password, id){
   req.end();
 }
 
-get_github_issues('csteamengine', 'MySnippets');
