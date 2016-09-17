@@ -45,9 +45,9 @@ co(function *() {
   if (result.transferIssues) {
       it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
-  // if (result.transferCode) {
-  //   ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
-  // }
+  if (result.transferCode) {
+    ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
+  }
 }, function (err) {
   console.log('Error processing user input to oprah.');
 });

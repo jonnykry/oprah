@@ -1,4 +1,5 @@
 var https = require('https');
+var http = require('http');
 var EventEmitter = require("events").EventEmitter;
 var body = new EventEmitter();
 var querystring = require('querystring');
@@ -54,12 +55,6 @@ function getGithubIssues(ghUsername, ghRepo) {
     });
 }
 
-/*
-{ paging: { page_size: 20, page_num: 1, sort_field: 'id', sort_dir: 'asc' },
-  items: [ [Object] ],
-  links: [] },
-*/
-
 function getGfUser(username, gfHash){
   var options = {
     host: 'next.gforge.com',
@@ -108,13 +103,6 @@ function getProject(gfRepo, gfHash) {
   });
 }
 
-/*
-tracker:
-  { paging: { page_size: 20, page_num: 1, sort_field: 'id', sort_dir: 'asc' },
-    items: [],
-    links: [] },
-*/
-
 function getTracker(gfRepo, gfHash) {
   var options = {
     host: 'next.gforge.com',
@@ -144,15 +132,16 @@ function postGforgeTrackers(data, gfHash) {
     host: 'next.gforge.com',
     path: '/api/trackeritem',
     method: 'POST',
-    auth: gfHash
+    auth: gfHash,
+    headers: {
+        'Content-Type': 'application/json'
+    }
   };
 
-  console.log(data);
-
-  var req = https.request(options, function(res) {
+  var req = http.request(options, function(res) {
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
-      // ??
+        console.log('Response: ' + chunk);
     });
   });
 
@@ -160,7 +149,10 @@ function postGforgeTrackers(data, gfHash) {
     console.log("Error: " + e.message);
   });
 
-  req.write(querystring.stringify(data));
+  var out = JSON.stringify(data);
+  console.log(out);
+
+  req.write(out);
   req.end();
 }
 
@@ -168,8 +160,8 @@ function getJson(userobj, issue, tracker) {
   var json = {
     "statusId": 1,
     "priority": 1,
-    "openDate": issue['created_at'], // (with some parsing done)
-    "closeDate": issue['closed_at'], // (with some parsing done, see if null is allowed)
+    "openDate": issue['created_at'],
+    "closeDate": issue['closed_at'],
     "summary": issue['title'],
     "details": issue['body'],
     "tracker": tracker,
@@ -185,14 +177,14 @@ function getJson(userobj, issue, tracker) {
       "fieldOrder": null
     },
     "submittedBy": userobj,
-    "lastModifiedDate": issue['updated_at'], //(with some parsing done)
+    "lastModifiedDate": issue['updated_at'],
     "lastModifiedBy": userobj,
     "sortOrder": null,
     "parent": 0,
     "hasSubitems": false,
     "subitemsCount": 0,
     "rel": {
-      "assignees": userobj
+      "assignees": [userobj]
     },
     "extraFields": {
       "status": {
