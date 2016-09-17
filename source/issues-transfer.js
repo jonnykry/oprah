@@ -1,43 +1,52 @@
-const https = require('https');
+var https = require('https');
+var EventEmitter = require("events").EventEmitter;
+var body = new EventEmitter();
 
-function transfer_issues(github_username, github_password, github_repo, gforge_username, gforge_password, gforge_repo){
-    var github_issues_json = get_github_issues(github_username, github_repo);
-    post_gforge_trackers(github_issues_json, gforge_username, gforge_password, gforge_repo);
+function transferIssues(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
+    getGithubIssues(ghUsername, ghRepo, body);
+
+    body.on('update', function() {
+      console.log('Hooray!', body.data);
+      postGforgeTrackers(body.data, gfUsername, gfHash, gfRepo);
+    });
 }
 
-// , github_password, github_repo, gforge_username, gforge_password, gforge_repo
-function get_github_issues(github_username, github_repo){
+// TODO: Do we need the GH or GF user/pass hash?
+function getGithubIssues(ghUsername, ghRepo) {
     var url = {
         host: 'api.github.com',
-        path: '/repos/'+github_username+'/'+ github_repo +'/issues',
+        path: '/repos/' + ghUsername + '/' + ghRepo + '/issues',
         method: 'GET',
-        headers: {'user-agent': github_username}
+        headers: {'user-agent': ghUsername}
     };
 
     https.get(url, function(res) {
-
         console.log("Got response: " + res.statusCode);
-        var body = "";
+
+        body.data = "";
+
         res.on("data", function(chunk) {
-            body += chunk;
+            body.data += chunk;
         });
+
         res.on('end', function(){
-            var json = JSON.parse(body);
-            //console.log(json[0]);
-            return json;
+            body.data = JSON.parse(body.data);
+            body.emit('update');
         });
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
     });
 }
 
-function post_gforge_trackers(object, username, password, id){
+
+// TODO: Figure out why user auth is not working
+function postGforgeTrackers(object, gfHash, id) {
   var gForce = {
     host: 'next.gforge.com',
-    path: '/api/trackeritem/' + id,
+    path: '/api/trackeritem',
     method: 'POST',
-    headers: {'user-agent': 'node.js'},
-    auth: 'Basic ' + new Buffer("justintw" + ':' + "123qwe").toString('base64')
+    headers: {'user-agent': '.js'},
+    auth: gfHash
   };
 
   var req = https.request(gForce, function(res) {
@@ -60,5 +69,5 @@ function post_gforge_trackers(object, username, password, id){
 }
 
 module.exports = {
-  transfer_issues
+  transferIssues
 }
