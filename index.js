@@ -20,6 +20,7 @@ co(function *() {
 
   // Get GitHub Data
   result.ghRepo = yield prompt('GitHub repository name: \n');
+
   var ghUsername = (program.githubusername) ? program.githubusername : yield prompt('GitHub Username: \n');
   var ghPassword = yield prompt.password('GitHub Password: \n');
   var ghAuthToken = yield prompt.password('GitHub Auth Token (optional): \n');

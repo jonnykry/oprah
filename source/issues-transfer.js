@@ -1,27 +1,34 @@
 var https = require('https');
-var http = require('http');
 var EventEmitter = require("events").EventEmitter;
 var body = new EventEmitter();
 var querystring = require('querystring');
 
-function transferIssues(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
+// Public Functions
+
+exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
     getGithubIssues(ghUsername, ghRepo);
 
+    // Event Listeners
+
     body.on('update', function() {
-      console.log("update");
-      get_user(gfUsername, gfHash);
-    });
-    body.on('user_get', function(){
-      console.log("user_get");
-      get_tracker(gfRepo, gfHash);
+      getGfUser(gfUsername, gfHash);
     });
 
-    body.on('tracker_get',function(){
-      var out = get_json(body.userdata, body.data, body.trackerdata);
-      console.log(out);
+    body.on('userGet', function () {
+      getProject(gfRepo, gfHash);
+    });
+
+    body.on('projectGet',function () {
+      getTracker(gfRepo, gfHash);
+    });
+
+    body.on('trackerGet',function () {
+      var out = getJson(body.userdata.items[0], body.data[0], body.trackerdata.items[0]);
       postGforgeTrackers(out, gfHash);
     });
 }
+
+// Private Functions
 
 function getGithubIssues(ghUsername, ghRepo) {
     var url = {
@@ -43,8 +50,93 @@ function getGithubIssues(ghUsername, ghRepo) {
             body.emit('update');
         });
     }).on('error', function(e) {
-        console.log("Got error: " + e.message);
+        console.log("Error: " + e.message);
     });
+}
+
+/*
+{ paging: { page_size: 20, page_num: 1, sort_field: 'id', sort_dir: 'asc' },
+  items: [ [Object] ],
+  links: [] },
+*/
+
+function getGfUser(username, gfHash){
+  var options = {
+    host: 'next.gforge.com',
+    path: '/api/user?unixName=' + username,
+    method: 'GET',
+    auth: gfHash
+  };
+
+  https.get(options, function(res) {
+    body.userdata = "";
+
+    res.on("data", function(chunk) {
+      body.userdata += chunk;
+    });
+
+    res.on('end', function() {
+      body.userdata = JSON.parse(body.userdata);
+      body.emit('userGet');
+    });
+  }).on('error', function(e) {
+    console.log("Error: " + e.message);
+  });
+}
+
+function getProject(gfRepo, gfHash) {
+  var options = {
+    host: 'next.gforge.com',
+    path: '/api/project?unixName=' + gfRepo,
+    method: 'GET',
+    auth: gfHash
+  };
+
+  https.get(options, function(res) {
+    body.projectdata = "";
+
+    res.on('data', function(chunk) {
+      body.projectdata += chunk;
+    });
+
+    res.on('end', function(){
+      body.projectdata = JSON.parse(body.projectdata);
+      body.emit('projectGet');
+    });
+  }).on('error', function(e) {
+    console.log("Error: " + e.message);
+  });
+}
+
+/*
+tracker:
+  { paging: { page_size: 20, page_num: 1, sort_field: 'id', sort_dir: 'asc' },
+    items: [],
+    links: [] },
+*/
+
+function getTracker(gfRepo, gfHash) {
+  var options = {
+    host: 'next.gforge.com',
+    path: '/api/tracker/?project=' + body.projectdata.items[0].id,
+    method: 'GET',
+    auth: gfHash
+  };
+
+  https.get(options, function(res) {
+    body.trackerdata = "";
+
+    res.on('data', function(chunk) {
+      body.trackerdata += chunk;
+    });
+
+    res.on('end', function(){
+      body.trackerdata = JSON.parse(body.trackerdata);
+      body.emit('trackerGet');
+    });
+  }).on('error', function(e) {
+    console.log("Error: " + e.message);
+  });
 }
 
 function postGforgeTrackers(data, gfHash) {
@@ -55,48 +147,24 @@ function postGforgeTrackers(data, gfHash) {
     auth: gfHash
   };
 
+  console.log(data);
 
   var req = https.request(options, function(res) {
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
-      console.log('Response: ' + chunk);
+      // ??
     });
   });
 
   req.on('error', function(e) {
-    console.log('problem with request: ' + e.message);
+    console.log("Error: " + e.message);
   });
 
   req.write(querystring.stringify(data));
   req.end();
 }
 
-function get_user(username, gfHash){
-  var options = {
-    host: 'next.gforge.com',
-    path: '/api/user?unixName='+username+'&page_num=1&page_size=20',
-    method: 'GET',
-    auth: gfHash
-  };
-  console.log(options);
-  http.get(options, function(res) {
-    body.userdata = "";
-
-    res.on("data", function(chunk) {
-      body.userdata += chunk;
-    });
-
-    res.on('end', function(){
-      body.userdata = JSON.parse(body.userdata);
-      body.emit('user_get');
-    });
-  }).on('error', function(e) {
-    console.log("Got error: " + e.message);
-  });
-
-}
-
-function get_json(userobj, issue, tracker){
+function getJson(userobj, issue, tracker) {
   var json = {
     "statusId": 1,
     "priority": 1,
@@ -146,35 +214,3 @@ function get_json(userobj, issue, tracker){
   };
   return json;
 }
-
-function get_tracker(gfRepo, gfHash){
-  //TODO get whole tracker();
-  var options = {
-    host: 'next.gforge.com',
-    path: '/api/tracker/?trackerName='+gfRepo+'&page_num=1&page_size=20',
-    method: 'GET',
-    auth: gfHash
-  };
-  console.log(options);
-  http.get(options, function(res) {
-    body.trackerdata = "";
-
-    res.on('data', function(chunk) {
-      body.trackerdata += chunk;
-    });
-
-    res.on('end', function(){
-      body.trackerdata = JSON.parse(body.trackerdata);
-      // console.log(body.userdata);
-      body.emit('tracker_get');
-    });
-  }).on('error', function(e) {
-    console.log("Got error: " + e.message);
-  });
-}
-
-
-module.exports = {
-  transferIssues,
-  get_user
-};
