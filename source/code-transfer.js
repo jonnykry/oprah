@@ -23,8 +23,8 @@ function transferCode(gfRepo, verbose) {
     setupGforgeRemote(gfRepo);
 
     // Push to new remote
-    shell.exec("git push " + gfRepo + " --all");
-    shell.exec("git push " + gfRepo + " --tags");
+    shell.exec("git push gforge --all");
+    shell.exec("git push gforge --tags");
 }
 
 
