@@ -10,10 +10,11 @@ function transferCode(gfRepo, verbose) {
     // Begin script
     console.log("Transferring Code from GitHub to GForge...");
     shell.config.silent = !verbose;
-    // attemptToCheckoutMaster();
+    shell.exec("git config --global credential.helper 'cache --timeout=600'");
+    attemptToCheckoutMaster();
 
     // Tracks all remote branches
-    shell.exec("git branch -r | grep -v '\->' | while read remote; do git branch --track \"${remote#origin/}\" \"$remote\"; done");
+    shell.exec("git branch -r | grep -v '\\->' | while read remote; do git branch --track \"${remote#origin/}\" \"$remote\"; done");
 
     // Pull down all branches
     shell.exec("git fetch --all");
@@ -25,6 +26,9 @@ function transferCode(gfRepo, verbose) {
     // Push to new remote
     shell.exec("git push gforge --all");
     shell.exec("git push gforge --tags");
+
+    // Reset credential.helper cache
+    shell.exec("git config --global credential.helper 'cache --timeout=0'");
 }
 
 
@@ -50,16 +54,11 @@ function attemptToCheckoutMaster(testing=false) {
             throwError();
         }
     }
-
 }
 
 function setupGforgeRemote(gfRepo) {
     var url = urlPrefix + gfRepo;
-
-    var remotes = shell.exec("git remote -v").stdout;
-    if (remotes.includes("gforge)")) {
-        shell.exec("git remote remove gforge");
-    }
+    shell.exec("git remote remove gforge 2>/dev/null");
     shell.exec("git remote add gforge " + url);
 }
 
