@@ -1,30 +1,33 @@
 {
-    "name": "oprah",
-    "version": "1.0.0",
-    "description": "Transfers repository information from GitHub to GForgeNEXT",
-    "main": "index.js",
-    "scripts": {
-	"test": "oprah-test"
-    },
-    "repository": {
-	"type": "git",
-	"url": "https://gforge.com/git/oprah"
-    },
-    "keywords": [
-	"github",
-	"gforge",
-	"next",
-	"git",
-	"kanban",
-	"issues",
-	"tracking"
-    ],
-    "author": "Nathan Karasch, Jonny Krysh, Gregory Steenhagen, Justin Wheeler",
-    "license": "ISC",
-    "bin": {
-	"github-code-transfer": "bin/github-code-transfer.js",
-	"github-issues-transfer": "bin/github-issues-transfer.js",
-	"github-projects-transfer": "bin/github-projects-transfer.js",
-	"github-wiki-transfer": "bin/github-wiki-transfer.js"
-    }
+  "name": "oprah",
+  "version": "1.0.0",
+  "description": "Transfers repository information from GitHub to GForgeNEXT",
+  "main": "index.js",
+  "scripts": {
+    "test": "oprah-test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gforge.com/git/oprah"
+  },
+  "keywords": [
+    "github",
+    "gforge",
+    "next",
+    "git",
+    "kanban",
+    "issues",
+    "tracking"
+  ],
+  "author": "Nathan Karasch, Jonny Krysh, Gregory Steenhagen, Justin Wheeler",
+  "license": "ISC",
+  "bin": {
+    "github-code-transfer": "bin/github-code-transfer.js",
+    "github-issues-transfer": "bin/github-issues-transfer.js",
+    "github-projects-transfer": "bin/github-projects-transfer.js",
+    "github-wiki-transfer": "bin/github-wiki-transfer.js"
+  },
+  "dependencies": {
+    "octonode": "^0.7.6"
+  }
 }
