@@ -38,8 +38,8 @@ function post_gforge_trackers(object, username, password, id){
     host: 'next.gforge.com',
     path: '/api/trackeritem/' + id,
     method: 'POST',
-    headers: {'user-agent': 'node.js'}
-    'Authorization': 'Basic ' + new Buffer("justintw" + ':' + "123qwe").toString('base64');
+    headers: {'user-agent': 'node.js'},
+    auth: 'Basic ' + new Buffer("justintw" + ':' + "123qwe").toString('base64')
   }
 
   var req = https.request(gForce, function(res) {
