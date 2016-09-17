@@ -25,7 +25,7 @@ function get_github_issues(github_username, github_repo){
         res.on('end', function(){
             var json = JSON.parse(body);
             // TODO - Call post_gforge_trackers
-            post_gforge_trackers(json, json["user"]["login"], json[], json[])
+            post_gforge_trackers(json, "test", 12, json["id"])
             //console.log(json[0]);
         });
     }).on('error', function(e) {
@@ -36,13 +36,13 @@ function get_github_issues(github_username, github_repo){
 function post_gforge_trackers(object, username, password, id){
   var gForce = {
     host: 'next.gforge.com',
-    path: '/api/trackeritem/',
+    path: '/api/trackeritem/' + id,
     method: 'POST',
     headers: {'user-agent': 'node.js'}
+    'Authorization': 'Basic ' + new Buffer("justintw" + ':' + "123qwe").toString('base64');
   }
 
-  var req = http.request(gForce, function(res) {
-    gForce["path"] = '/api/trackeritem/' + object["userID"];
+  var req = https.request(gForce, function(res) {
     console.log('STATUS: ' + res.statusCode);
     console.log('HEADERS: ' + JSON.stringify(res.headers));
     res.setEncoding('utf8');
@@ -54,10 +54,10 @@ function post_gforge_trackers(object, username, password, id){
   req.on('error', function(e) {
     console.log('problem with request: ' + e.message);
   });
-
+  
+  console.log(object[0])
   // write data to request body
-  req.write('data\n');
-  req.write('data\n');
+  req.write("Test");
   req.end();
 }
 
