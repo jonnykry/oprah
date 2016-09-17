@@ -11,7 +11,7 @@ function transferCode(gfRepo, verbose) {
     console.log("Transferring Code from GitHub to GForge...");
     shell.config.silent = !verbose;
     shell.exec("git config --global credential.helper 'cache --timeout=600'");
-    attemptToCheckoutMaster();
+    // attemptToCheckoutMaster();
 
     // Tracks all remote branches
     shell.exec("git branch -r | grep -v '\\->' | while read remote; do git branch --track \"${remote#origin/}\" \"$remote\"; done");
@@ -45,6 +45,8 @@ function attemptToCheckoutMaster(testing=false) {
     var stderr;
     if (!testing) {
         stderr = shell.exec("git checkout master").stderr;
+        // TODO: This isn't working right, and it's erroring out
+        // when the repo is already on master.
         if (stderr) {
             shell.exit(1);
         }

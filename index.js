@@ -51,7 +51,7 @@ co(function *() {
       // it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {
-      ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
+      ct.transferCode(result.gfRepo, result.verbose);
   }
 }, function (err) {
   console.log('Error processing user input to oprah.');
