@@ -1,0 +1,10 @@
+var http = require('http');
+
+
+
+http.get('http://api.github.com/repos/csteamengine/MySnippets', function(resp){
+	console.log(`Got response: ${resp.statusCode}`);
+	console.log(resp);
+    }).on("error", function(e){
+	    console.log("Got error: " + e.message);
+	});

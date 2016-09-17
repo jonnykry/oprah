@@ -1,80 +1,64 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#! /usr/bin/env node
 const https = require('https');
-var gitURL = {
-  host: 'api.github.com',
-  path: '/',
-  method: 'GET',
-  headers: {'user-agent': 'node.js'}
-};
 
-https.get(url, function(res) {
-  res.on("data", function(chunk) {
-    console.log("BODY: " + chunk);
-  });
-}).on('error', function(e) {
-  console.log("Got error: " + e.message);
-});
-
-
-
-
-var gForce = {
-  host: 'next.gforge.com',
-  path: '/api/trackeritem/',
-  method: 'POST',
-  headers: {'user-agent': 'node.js'}
+function transfer_issues(github_username, github_password, github_repo, gforge_username, gforge_password, gforge_repo){
+    var github_issues_json = get_github_issues(github_username, github_repo);
+    post_gforge_tracker(json, gforge_username, gforge_password, gforge_repo);
 }
 
-var req = http.request(gForce, function(res) {
-  gForce["path"] = '/api/trackeritem/' + object["userID"];
-  console.log('STATUS: ' + res.statusCode);
-  console.log('HEADERS: ' + JSON.stringify(res.headers));
-  res.setEncoding('utf8');
-  res.on('data', function (chunk) {
-    console.log('BODY: ' + chunk);
+// , github_password, github_repo, gforge_username, gforge_password, gforge_repo
+function get_github_issues(github_username, github_repo){
+    var url = {
+        host: 'api.github.com',
+        path: '/repos/'+github_username+'/'+ github_repo +'/issues',
+        method: 'GET',
+        headers: {'user-agent': github_username}
+    };
+
+    https.get(url, function(res) {
+
+        console.log("Got response: " + res.statusCode);
+        var body = "";
+        res.on("data", function(chunk) {
+            body += chunk;
+        });
+        res.on('end', function(){
+            var json = JSON.parse(body);
+            // TODO - Call post_gforge_trackers
+            post_gforge_trackers(json, json["user"]["login"], json[], json[])
+            //console.log(json[0]);
+        });
+    }).on('error', function(e) {
+        console.log("Got error: " + e.message);
+    });
+}
+
+function post_gforge_trackers(object, username, password, id){
+  var gForce = {
+    host: 'next.gforge.com',
+    path: '/api/trackeritem/',
+    method: 'POST',
+    headers: {'user-agent': 'node.js'}
+  }
+
+  var req = http.request(gForce, function(res) {
+    gForce["path"] = '/api/trackeritem/' + object["userID"];
+    console.log('STATUS: ' + res.statusCode);
+    console.log('HEADERS: ' + JSON.stringify(res.headers));
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      console.log('BODY: ' + chunk);
+    });
   });
-});
 
-req.on('error', function(e) {
-  console.log('problem with request: ' + e.message);
-});
+  req.on('error', function(e) {
+    console.log('problem with request: ' + e.message);
+  });
 
-// write data to request body
-req.write('data\n');
-req.write('data\n');
-req.end();
+  // write data to request body
+  req.write('data\n');
+  req.write('data\n');
+  req.end();
+}
+
+get_github_issues('csteamengine', 'MySnippets');
