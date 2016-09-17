@@ -17,3 +17,15 @@ Run `oprah` and follow the CLI instructions!
 The test suite uses [Mocha](http://mochajs.org/). Install with
 `npm install mocha` and run by typing `mocha` from the root
 directory.
+
+#### Frameworks and APIs
+
+- [Commander.js](https://github.com/tj/commander.js/) - Used to
+  parse command line args.
+- [ShellJS](https://github.com/shelljs/shelljs) - Used to call
+  git commands.
+- [GForge Next API](https://next.gforge.com/apidoc) - Used to
+  make POST/GET requests to GForge Next.
+- [GitHub API](https://developer.github.com/v3/) - Used to make
+  GET requests to GitHub.
+- [Mocha](http://mochajs.org/) - Used for test suite.
