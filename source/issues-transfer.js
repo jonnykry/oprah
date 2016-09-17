@@ -1,4 +1,3 @@
-#! /usr/bin/env node
 const https = require('https');
 
 function transfer_issues(github_username, github_password, github_repo, gforge_username, gforge_password, gforge_repo){
@@ -53,10 +52,13 @@ function post_gforge_trackers(object, username, password, id){
   req.on('error', function(e) {
     console.log('problem with request: ' + e.message);
   });
-  
+
   console.log(object[0])
   // write data to request body
   req.write("Test");
   req.end();
 }
 
+module.exports = {
+  transfer_issues
+}

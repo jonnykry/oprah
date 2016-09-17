@@ -3,6 +3,7 @@
 var co = require('co');
 var prompt = require('co-prompt');
 var program = require('commander');
+var transfer_issues = require('./bin/github-issues-transfer.js');
 
 program.version('0.0.1')
   .option('-u, --username [username]', 'Your GitHub username')
