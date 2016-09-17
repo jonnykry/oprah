@@ -33,7 +33,7 @@ co(function *() {
   result.gfHash = gfUsername + ':' + gfPassword;
 
   // Get the remaining command line arguments
-  result.verbose = (program.verbose);
+  result.verbose = (program.verbose) ? true : false;
   result.transferIssues = (runAll() || program.transferissues);
   result.transferCode = (runAll() || program.transfercode);
 

@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 var shell = require("shelljs");
 
-function transferCode(gforgeRepoURL, verbose) {
+function transferCode(ghRepo, ghUsername, gfRepo, gfUsername, verbose) {
     // Check if user has git installed
     checkGitInstalled();
     
@@ -24,35 +24,37 @@ function transferCode(gforgeRepoURL, verbose) {
     // Push to new remote
     shell.exec("git push " + gforgeRepoURL + " --all");
     shell.exec("git push " + gforgeRepoURL + " --tags");
-}
 
-function checkGitInstalled() {
-    if (!shell.which("git")) {
-        shell.echo("Sorry, this script requires git.");
-        shell.exit(1);
+
+    function checkGitInstalled() {
+        if (!shell.which("git")) {
+            shell.echo("Sorry, this script requires git.");
+            shell.exit(1);
+        }
+    }
+
+    function attemptToCheckoutMaster() {
+        var commandStdOut;
+        var commandStdErr;
+        shell.exec("git checkout master", function(_, stdout, stderr) {
+            commandStdOut = stdout;
+            commandStdErr = stderr;
+        });
+        if (commandStdErr) {
+            console.log(commandStdErr);
+            shell.exit(1);
+        }
+    }
+
+    function setupGforgeRemote() {
+        var remotes = shell.exec("git remote -v").stdout;
+        if (remotes.includes("gforge)")) {
+            shell.exec("git remote remove gforge");
+        }
+        shell.exec("git remote add gforge " + gforgeRepoURL);
     }
 }
 
-function attemptToCheckoutMaster() {
-    var commandStdOut;
-    var commandStdErr;
-    shell.exec("git checkout master", function(_, stdout, stderr) {
-        commandStdOut = stdout;
-        commandStdErr = stderr;
-    });
-    if (commandStdErr) {
-        console.log(commandStdErr);
-        shell.exit(1);
-    }
-}
-
-function setupGforgeRemote(gforgeRepoURL) {
-    var remotes = shell.exec("git remote -v").stdout;
-    if (remotes.includes("gforge)")) {
-        shell.exec("git remote remove gforge");
-    }
-    shell.exec("git remote add gforge " + gforgeRepoURL);
-}
 
 module.exports = {
     transferCode
