@@ -1,4 +1,5 @@
 var https = require('https');
+var http = require('http');
 var EventEmitter = require("events").EventEmitter;
 var body = new EventEmitter();
 var querystring = require('querystring');
@@ -144,15 +145,16 @@ function postGforgeTrackers(data, gfHash) {
     host: 'next.gforge.com',
     path: '/api/trackeritem',
     method: 'POST',
-    auth: gfHash
+    auth: gfHash,
+    headers: {
+        'Content-Type': 'application/json'
+    }
   };
 
-  console.log(data);
-
-  var req = https.request(options, function(res) {
+  var req = http.request(options, function(res) {
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
-      // ??
+        console.log('Response: ' + chunk);
     });
   });
 
@@ -160,7 +162,10 @@ function postGforgeTrackers(data, gfHash) {
     console.log("Error: " + e.message);
   });
 
-  req.write(querystring.stringify(data));
+  var out = JSON.stringify(data);
+  console.log(out);
+
+  req.write(out);
   req.end();
 }
 
@@ -192,7 +197,7 @@ function getJson(userobj, issue, tracker) {
     "hasSubitems": false,
     "subitemsCount": 0,
     "rel": {
-      "assignees": userobj
+      "assignees": [userobj]
     },
     "extraFields": {
       "status": {
