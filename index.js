@@ -22,8 +22,10 @@ co(function *() {
   result.ghRepo = yield prompt('GitHub repository name: \n');
   var ghUsername = (program.githubusername) ? program.githubusername : yield prompt('GitHub Username: \n');
   var ghPassword = yield prompt.password('GitHub Password: \n');
+  var ghAuthToken = yield prompt.password('GitHub Auth Token (optional): \n');
   result.ghUsername = ghUsername;
-  result.ghHash = 'Basic ' + new Buffer(ghUsername + ':' + ghPassword).toString('base64');
+  result.ghHash = ghUsername + ':' + ghPassword;
+  result.ghAuthToken = ghAuthToken;
 
   // Get GForge Data
   result.gfRepo = yield prompt('GForge repository name: \n');
