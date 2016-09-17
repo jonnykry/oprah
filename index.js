@@ -9,6 +9,7 @@ var ct = require('./source/code-transfer');
 program.version('0.0.1')
   .option('-u, --githubusername [ghUsername]', 'Your GitHub username')
   .option('-U, --gforgeusername [gfUsername]', 'Your GForge username')
+  .option('-p, --pagesize [pagesize]', 'GitHub Issue Pagination page limit')
   .option('-v, --verbose', 'Display program output, warnings, and error details', incrementFlag, 0)
   .option('-t, --timeout [timeout]', 'GitHub authentication timeout time (default 600ms)')
   .option('-i, --transferissues', 'Only transfers Issues from GitHub to GForge', incrementFlag, 0)
@@ -40,13 +41,17 @@ co(function *() {
   result.transferIssues = (runAll() || program.transferissues);
   result.transferCode = (runAll() || program.transfercode);
 
+  // TODO: Add pageSize for queries to GH.
+  result.pageSize = program.pagesize;
+
   return result;
 }).then(function(result) {
   if (result.transferIssues) {
-      it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
+      it.transferIssues('atom', 'language-javascript', 'csteamengine', 'csteamengine:########', 'testing-oprah');
+      // it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {
-    ct.transferCode(result.gfRepo, result.verbose);
+      ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
   }
 }, function (err) {
   console.log('Error processing user input to oprah.');
