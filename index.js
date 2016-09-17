@@ -43,7 +43,7 @@ co(function *() {
   return result;
 }).then(function(result) {
   if (result.transferIssues) {
-      it.transferIssues('atom', 'language-javascript', 'csteamengine', 'csteamengine:########', 'testing-oprah');
+      it.transferIssues('csteamengine', 'MySnippets', 'justintw', 'justintw:123qwe', 'oprah');
       // it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {

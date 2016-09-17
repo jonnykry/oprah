@@ -1,63 +1,63 @@
 var https = require('https');
 var http = require('http');
 var EventEmitter = require("events").EventEmitter;
-var body = new EventEmitter();
 var querystring = require('querystring');
-
+bodies = [new EventEmitter(), new EventEmitter(), new EventEmitter(), new EventEmitter(), new EventEmitter(), new EventEmitter()]
 // Public Functions
 
 exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
-    getGithubIssues(ghUsername, ghRepo);
+  for (var page = 1; page < 5; page++)
+  {
+    console.log(page)
+    getGithubIssues(ghUsername, ghRepo, page)
 
-    // Event Listeners
-
-    body.on('update', function() {
-      getGfUser(gfUsername, gfHash);
+    bodies[page].on('update', function() {
+      getGfUser(gfUsername, gfHash, page);
     });
 
-    body.on('userGet', function () {
-      getProject(gfRepo, gfHash);
+    bodies[page].on('userGet', function () {
+      getProject(gfRepo, gfHash, page);
     });
 
-    body.on('projectGet',function () {
-      getTracker(gfRepo, gfHash);
+    bodies[page].on('projectGet',function () {
+      getTracker(gfRepo, gfHash, page);
     });
 
-    body.on('trackerGet',function () {
-      for(i = 0;i< body.data.length;i++){
-        var out = getJson(body.userdata.items[0], body.data[i], body.trackerdata.items[0]);
+    bodies[page].on('trackerGet',function () {
+      for(i = 0;i< bodies[page].data.length;i++){
+        var out = getJson(bodies[page].userdata.items[0], bodies[page].data[i], bodies[page].trackerdata.items[0]);
         postGforgeTrackers(out, gfHash);
       }
-    });
+    }); 
+  }
 }
 
 // Private Functions
 
-function getGithubIssues(ghUsername, ghRepo) {
+function getGithubIssues(ghUsername, ghRepo, page) {
     var url = {
         host: 'api.github.com',
-        path: '/repos/' + ghUsername + '/' + ghRepo + '/issues?state=all',
+        path: '/repos/' + ghUsername + '/' + ghRepo + '/issues?state=all&page=' + page + '&per_page=1',
         method: 'GET',
         headers: {'user-agent': ghUsername}
     };
 
     https.get(url, function(res) {
-        body.data = "";
-
+        bodies[page].data = ""
         res.on("data", function(chunk) {
-            body.data += chunk;
+            bodies[page].data += chunk;
         });
 
         res.on('end', function(){
-            body.data = JSON.parse(body.data);
-            body.emit('update');
+            bodies[page].data = JSON.parse(bodies[page].data);
+            bodies[page].emit('update');
         });
     }).on('error', function(e) {
         console.log("Error: " + e.message);
     });
 }
 
-function getGfUser(username, gfHash){
+function getGfUser(username, gfHash, page){
   var options = {
     host: 'next.gforge.com',
     path: '/api/user?unixName=' + username,
@@ -66,22 +66,22 @@ function getGfUser(username, gfHash){
   };
 
   https.get(options, function(res) {
-    body.userdata = "";
+    bodies[page].userdata = "";
 
     res.on("data", function(chunk) {
-      body.userdata += chunk;
+      bodies[page].userdata += chunk;
     });
 
     res.on('end', function() {
-      body.userdata = JSON.parse(body.userdata);
-      body.emit('userGet');
+      bodies[page].userdata = JSON.parse(bodies[page].userdata);
+      bodies[page].emit('userGet');
     });
   }).on('error', function(e) {
     console.log("Error: " + e.message);
   });
 }
 
-function getProject(gfRepo, gfHash) {
+function getProject(gfRepo, gfHash, page) {
   var options = {
     host: 'next.gforge.com',
     path: '/api/project?unixName=' + gfRepo,
@@ -90,39 +90,39 @@ function getProject(gfRepo, gfHash) {
   };
 
   https.get(options, function(res) {
-    body.projectdata = "";
+    bodies[page].projectdata = "";
 
     res.on('data', function(chunk) {
-      body.projectdata += chunk;
+      bodies[page].projectdata += chunk;
     });
 
     res.on('end', function(){
-      body.projectdata = JSON.parse(body.projectdata);
-      body.emit('projectGet');
+      bodies[page].projectdata = JSON.parse(bodies[page].projectdata);
+      bodies[page].emit('projectGet');
     });
   }).on('error', function(e) {
     console.log("Error: " + e.message);
   });
 }
 
-function getTracker(gfRepo, gfHash) {
+function getTracker(gfRepo, gfHash, page) {
   var options = {
     host: 'next.gforge.com',
-    path: '/api/tracker/?project=' + body.projectdata.items[0].id,
+    path: '/api/tracker/?project=' + bodies[page].projectdata.items[0].id,
     method: 'GET',
     auth: gfHash
   };
 
   https.get(options, function(res) {
-    body.trackerdata = "";
+    bodies[page].trackerdata = "";
 
     res.on('data', function(chunk) {
-      body.trackerdata += chunk;
+      bodies[page].trackerdata += chunk;
     });
 
     res.on('end', function(){
-      body.trackerdata = JSON.parse(body.trackerdata);
-      body.emit('trackerGet');
+      bodies[page].trackerdata = JSON.parse(bodies[page].trackerdata);
+      bodies[page].emit('trackerGet');
     });
   }).on('error', function(e) {
     console.log("Error: " + e.message);
@@ -165,7 +165,7 @@ function getJson(userobj, issue, tracker) {
     "openDate": issue['created_at'],
     "closeDate": issue['closed_at'],
     "summary": issue['title'],
-    "details": issue['body'],
+    "details": issue['bodies[page]'],
     "tracker": tracker,
     "waitingFor": 100,
     "sprint": {
