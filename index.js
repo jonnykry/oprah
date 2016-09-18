@@ -35,7 +35,7 @@ co(function *() {
   result.gfHash = gfUsername + ':' + gfPassword;
 
   // Get the remaining command line arguments
-  result.verbose = (program.verbose);
+  result.verbose = (program.verbose) ? true : false;
   result.transferIssues = (runAll() || program.transferissues);
   result.transferCode = (runAll() || program.transfercode);
 
@@ -45,7 +45,7 @@ co(function *() {
       it.transferIssues(result.ghUsername, result.ghHash, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {
-      ct.transferCode(result.ghRepo, result.ghUsername, result.gfRepo, result.gfUsername, result.verbose);
+      ct.transferCode(result.gfRepo, result.verbose);
   }
 }, function (err) {
   console.log('Error processing user input to oprah.', err);
