@@ -6,8 +6,8 @@ var querystring = require('querystring');
 
 // Public Functions
 
-exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
-    getGithubIssues(ghUsername, ghRepo);
+exports.transferIssues = function(ghUsername, ghHash, ghRepo, ghOAuthToken, gfUsername, gfHash, gfRepo) {
+    getGithubIssues(ghUsername, ghHash, ghRepo, ghOAuthToken);
 
     // Event Listeners
 
@@ -33,15 +33,17 @@ exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo
 
 // Private Functions
 
-function getGithubIssues(ghUsername, ghRepo) {
-    var url = {
+function getGithubIssues(ghUsername, ghHash, ghRepo) {
+    var options = {
         host: 'api.github.com',
         path: '/repos/' + ghUsername + '/' + ghRepo + '/issues?state=all',
         method: 'GET',
-        headers: {'user-agent': ghUsername}
+        headers: {
+          'user-agent': ghUsername
+        }
     };
 
-    https.get(url, function(res) {
+    https.get(options, function(res) {
         body.data = "";
 
         res.on("data", function(chunk) {
@@ -50,6 +52,7 @@ function getGithubIssues(ghUsername, ghRepo) {
 
         res.on('end', function(){
             body.data = JSON.parse(body.data);
+            console.log('body', body.data);
             body.emit('update');
         });
     }).on('error', function(e) {

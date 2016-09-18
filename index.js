@@ -9,9 +9,9 @@ var ct = require('./source/code-transfer');
 program.version('0.0.1')
   .option('-u, --githubusername [ghUsername]', 'Your GitHub username')
   .option('-U, --gforgeusername [gfUsername]', 'Your GForge username')
-  .option('-p, --pagesize [pagesize]', 'GitHub Issue Pagination page limit')
+  .option('-r, --githubrepo [ghRepo]', 'The GitHub repository name')
+  .option('-R, --gforgerepo [gfRepo]', 'The GForge repository name')
   .option('-v, --verbose', 'Display program output, warnings, and error details', incrementFlag, 0)
-  .option('-t, --timeout [timeout]', 'GitHub authentication timeout time (default 600ms)')
   .option('-i, --transferissues', 'Only transfers Issues from GitHub to GForge', incrementFlag, 0)
   .option('-c, --transfercode', 'Only transfers Code from GitHub to GForge', incrementFlag, 0)
   .parse(process.argv);
@@ -20,17 +20,15 @@ co(function *() {
   var result = {};
 
   // Get GitHub Data
-  result.ghRepo = yield prompt('GitHub repository name: \n');
+  result.ghRepo = (program.githubrepo) ? program.githubrepo : yield prompt('GitHub Repository Name: \n');
 
   var ghUsername = (program.githubusername) ? program.githubusername : yield prompt('GitHub Username: \n');
   var ghPassword = yield prompt.password('GitHub Password: \n');
-  var ghAuthToken = yield prompt.password('GitHub Auth Token (optional): \n');
   result.ghUsername = ghUsername;
   result.ghHash = ghUsername + ':' + ghPassword;
-  result.ghAuthToken = ghAuthToken;
 
   // Get GForge Data
-  result.gfRepo = yield prompt('GForge repository name: \n');
+  result.gfRepo = (program.gforgerepo) ? program.gforgerepo : yield prompt('GForge Repository Name: \n');
   var gfUsername = (program.gforgeusername) ? program.gforgeusername : yield prompt('GForge Username: \n');
   var gfPassword = yield prompt.password('GForge Password: \n');
   result.gfUsername = gfUsername;
@@ -41,20 +39,16 @@ co(function *() {
   result.transferIssues = (runAll() || program.transferissues);
   result.transferCode = (runAll() || program.transfercode);
 
-  // TODO: Add pageSize for queries to GH.
-  result.pageSize = program.pagesize;
-
   return result;
 }).then(function(result) {
   if (result.transferIssues) {
-      it.transferIssues('atom', 'language-javascript', 'csteamengine', 'csteamengine:########', 'testing-oprah');
-      // it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
+      it.transferIssues(result.ghUsername, result.ghHash, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {
       ct.transferCode(result.gfRepo, result.verbose);
   }
 }, function (err) {
-  console.log('Error processing user input to oprah.');
+  console.log('Error processing user input to oprah.', err);
 });
 
 function incrementFlag(f, total) {
