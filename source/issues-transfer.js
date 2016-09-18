@@ -3,11 +3,12 @@ var http = require('http');
 var EventEmitter = require("events").EventEmitter;
 var body = new EventEmitter();
 var querystring = require('querystring');
+var colors = require("colors");
 
 // Public Functions
 
-exports.transferIssues = function(ghUsername, ghHash, ghRepo, gfUsername, gfHash, gfRepo) {
-    getGithubIssues(ghUsername, ghHash, ghRepo);
+exports.transferIssues = function(ghUsername, ghRepo, gfUsername, gfHash, gfRepo) {
+    getGithubIssues(ghUsername, ghRepo);
 
     // Event Listeners
 
@@ -24,16 +25,16 @@ exports.transferIssues = function(ghUsername, ghHash, ghRepo, gfUsername, gfHash
     });
 
     body.on('trackerGet',function () {
-      for(i = 0;i< body.data.length;i++){
+      for(i = 0; i < body.data.length; i++) {
         var out = getJson(body.userdata.items[0], body.data[i], body.trackerdata.items[0]);
-        postGforgeTrackers(out, gfHash);
+        postGforgeTrackers(out, gfHash, i == body.data.length - 1);
       }
     });
 }
 
 // Private Functions
 
-function getGithubIssues(ghUsername, ghHash, ghRepo) {
+function getGithubIssues(ghUsername, ghRepo) {
     var options = {
         host: 'api.github.com',
         path: '/repos/' + ghUsername + '/' + ghRepo + '/issues?state=all',
@@ -131,7 +132,7 @@ function getTracker(gfRepo, gfHash) {
   });
 }
 
-function postGforgeTrackers(data, gfHash) {
+function postGforgeTrackers(data, gfHash, isFinished) {
   var options = {
     host: 'next.gforge.com',
     path: '/api/trackeritem',
@@ -145,7 +146,7 @@ function postGforgeTrackers(data, gfHash) {
   var req = http.request(options, function(res) {
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
-        console.log('Response: ' + chunk);
+        console.log('New tracking item created at: ' + chunk);
     });
   });
 
@@ -156,6 +157,12 @@ function postGforgeTrackers(data, gfHash) {
   var out = JSON.stringify(data);
 
   req.write(out);
+
+  if (isFinished) {
+    console.log(colors.green("Transferring Code from GitHub to GForge Complete!"));
+    console.log(colors.green("Transferring GitHub issues to GForge tracker items..."));
+  }
+
   req.end();
 }
 

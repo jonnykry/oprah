@@ -23,9 +23,7 @@ co(function *() {
   result.ghRepo = (program.githubrepo) ? program.githubrepo : yield prompt('GitHub Repository Name: \n');
 
   var ghUsername = (program.githubusername) ? program.githubusername : yield prompt('GitHub Username: \n');
-  var ghPassword = yield prompt.password('GitHub Password: \n');
   result.ghUsername = ghUsername;
-  result.ghHash = ghUsername + ':' + ghPassword;
 
   // Get GForge Data
   result.gfRepo = (program.gforgerepo) ? program.gforgerepo : yield prompt('GForge Repository Name: \n');
@@ -42,7 +40,7 @@ co(function *() {
   return result;
 }).then(function(result) {
   if (result.transferIssues) {
-      it.transferIssues(result.ghUsername, result.ghHash, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
+      it.transferIssues(result.ghUsername, result.ghRepo, result.gfUsername, result.gfHash, result.gfRepo);
   }
   if (result.transferCode) {
       ct.transferCode(result.gfRepo, result.verbose);
