@@ -1,5 +1,7 @@
 #! /usr/bin/env node
+
 var shell = require("shelljs");
+var colors = require("colors");
 var urlPrefix = "https://gforge.com/git/";
 
 
@@ -8,19 +10,19 @@ function transferCode(gfRepo, verbose) {
     checkGitInstalled();
     
     // Begin script
-    console.log("Transferring Code from GitHub to GForge...");
+    console.log(colors.green("Transferring Code from GitHub to GForge..."));
     shell.config.silent = !verbose;
-    shell.exec("git config --global credential.helper 'cache --timeout=600'");
+
+    // Allow the credential.helper to cache credentials so the user only enters it once
+    shell.exec("git config --global credential.helper 'cache --timeout=300'");
     // attemptToCheckoutMaster();
 
-    // Tracks all remote branches
+    // Tracks and pulls down all remote branches and tags
     shell.exec("git branch -r | grep -v '\\->' | while read remote; do git branch --track \"${remote#origin/}\" \"$remote\"; done");
-
-    // Pull down all branches
     shell.exec("git fetch --all");
     shell.exec("git pull --all");
 
-    // Setup gforge remote
+    // Setup GForge remote
     setupGforgeRemote(gfRepo);
 
     // Push to new remote
@@ -34,7 +36,7 @@ function transferCode(gfRepo, verbose) {
 
 function checkGitInstalled(testing=false) {
     if (!testing && !shell.which("git")) {
-        shell.echo("Sorry, this script requires git.");
+        shell.echo(colors.red("This script requires git to run."));
         shell.exit(1);
     } else if (testing && !shell.which("gitnotinstalled")) {
         throwError();
