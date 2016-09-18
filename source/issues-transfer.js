@@ -6,8 +6,8 @@ var querystring = require('querystring');
 
 // Public Functions
 
-exports.transferIssues = function(ghUsername, ghHash, ghRepo, ghOAuthToken, gfUsername, gfHash, gfRepo) {
-    getGithubIssues(ghUsername, ghHash, ghRepo, ghOAuthToken);
+exports.transferIssues = function(ghUsername, ghHash, ghRepo, gfUsername, gfHash, gfRepo) {
+    getGithubIssues(ghUsername, ghHash, ghRepo);
 
     // Event Listeners
 
@@ -52,7 +52,6 @@ function getGithubIssues(ghUsername, ghHash, ghRepo) {
 
         res.on('end', function(){
             body.data = JSON.parse(body.data);
-            console.log('body', body.data);
             body.emit('update');
         });
     }).on('error', function(e) {
@@ -60,7 +59,7 @@ function getGithubIssues(ghUsername, ghHash, ghRepo) {
     });
 }
 
-function getGfUser(username, gfHash){
+function getGfUser(username, gfHash) {
   var options = {
     host: 'next.gforge.com',
     path: '/api/user?unixName=' + username,
@@ -155,7 +154,6 @@ function postGforgeTrackers(data, gfHash) {
   });
 
   var out = JSON.stringify(data);
-  console.log(out);
 
   req.write(out);
   req.end();
