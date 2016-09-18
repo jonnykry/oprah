@@ -10,7 +10,23 @@ Once Node and NPM are installed, run `npm install -g oprah`.
 
 #### How to Run
 
-Run `oprah` and follow the CLI instructions!
+```
+  Usage: oprah [options]
+
+  Options:
+
+    -h, --help                         output usage information
+    -V, --version                      output the version number
+    -u, --githubusername [ghUsername]  Your GitHub username
+    -U, --gforgeusername [gfUsername]  Your GForge username
+    -p, --pagesize [pagesize]          GitHub Issue Pagination page limit
+    -v, --verbose                      Display program output, warnings, and error details
+    -t, --timeout [timeout]            GitHub authentication timeout time (default 600ms)
+    -i, --transferissues               Only transfers Issues from GitHub to GForge
+    -c, --transfercode                 Only transfers Code from GitHub to GForge
+```
+
+Alternatively, you can simply run `oprah` with no arguments/options for default settings.  This is the preferred method for entering passwords.
 
 #### Testing
 
